@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/kunaldawn/go-android/device"
+	"github.com/kunaldawn/goandroid/device"
 	"strings"
 )
 

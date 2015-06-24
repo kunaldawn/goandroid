@@ -3,12 +3,44 @@
 package adbutility
 
 import (
-	"github.com/kunaldawn/go-android/shellutility"
+	"errors"
+	"fmt"
+	"log"
+	"os/exec"
 	"strings"
+	"time"
 )
 
+type output struct {
+	ret string // Output of a command execution
+	err error  // Error of a command execution
+}
+
+type outChannel chan output
+
 func Adb(timeout int, args ...string) (string, error) {
-	return shellutility.RunShellCommand(timeout, "adb", args...)
+	log.Println(fmt.Sprintf("adb %v", args))
+	cmd := exec.Command("adb", args...)
+	done := make(outChannel)
+	go func(done outChannel, cmd *exec.Cmd) {
+		// Run the command and get combined output for stdout and stderr
+		ret, err := cmd.CombinedOutput()
+		// Create a output for command
+		out := output{ret: string(ret), err: err}
+		// Notify that command has complited
+		done <- out
+	}(done, cmd)
+	select {
+	case out := <-done:
+		return out.ret, out.err
+	case <-time.After(time.Duration(timeout) * time.Second):
+		err := cmd.Process.Kill()
+		if err != nil {
+			panic(err)
+		}
+		return "", errors.New(fmt.Sprintf("Timeout occured after %d sec", timeout))
+	}
+	return "", nil
 }
 
 func GetAttachedDevices(timeout int) ([]string, error) {

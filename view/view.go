@@ -28,32 +28,27 @@ type View struct {
 
 type Views []View
 
-func (vw View) Click() error {
-	return nil
-}
-
-func (views Views) GetViewByText(text string) (View, bool) {
+func (views Views) GetByTextIndex(text string, index int) (View, bool) {
+	idx := 0
 	for _, vw := range views {
 		if vw.Text == text {
-			return vw, true
+			if idx == index {
+				return vw, true
+			}
+			idx += 1
 		}
 	}
 	return View{}, false
 }
 
-func (views Views) GetViewsByText(text string, index int) (View, bool) {
-	for _, vw := range views {
-		if vw.Text == text {
-			return vw, true
-		}
-	}
-	return View{}, false
-}
-
-func (views Views) GetViewByMatchingText(text string) (View, bool) {
+func (views Views) GetByMatchingTextIndex(text string, index int) (View, bool) {
+	idx := 0
 	for _, vw := range views {
 		if strings.Contains(strings.ToLower(vw.Text), strings.ToLower(text)) {
-			return vw, true
+			if idx == index {
+				return vw, true
+			}
+			idx += 1
 		}
 	}
 	return View{}, false

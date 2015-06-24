@@ -5,7 +5,7 @@ package device
 import (
 	"errors"
 	"fmt"
-	"github.com/kunaldawn/go-android/adbutility"
+	"github.com/kunaldawn/goandroid/adbutility"
 	"strings"
 )
 
