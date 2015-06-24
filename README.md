@@ -2,7 +2,7 @@
 
 goandroid
 ==========
-[![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid) [![Build Status](https://travis-ci.org/kunaldawn/goandroid.svg?branch=master)](https://travis-ci.org/kunaldawn/goandroid) [![Coverage Status](https://coveralls.io/repos/kunaldawn/goandroid/badge.svg)](https://coveralls.io/r/kunaldawn/goandroid)
+[![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid) [![Build Status](http://img.shields.io/travis/kunaldawn/goandroid.svg?style=flat-square)](https://travis-ci.org/kunaldawn/goandroid) [![Coverage Status](http://img.shields.io/coveralls/kunaldawn/goandroid.svg?style=flat-square)](https://coveralls.io/r/kunaldawn/goandroid) [![Issues](http://img.shields.io/github/issues/kunaldawn/goandroid.svg?style=flat-square)](https://github.com/kunaldawn/goandroid/issues) [![Documentation](http://img.shields.io/badge/go-Documentation-blue.svg?style=flat-square)](https://godoc.org/github.com/kunaldawn/goandroid) [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/kunaldawn/goandroid/blob/master/LICENSE)
 
 ### Introduction
 
