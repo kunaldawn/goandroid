@@ -1,3 +1,5 @@
+[![Project Status](https://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid)
+
 ![goandroid_logo](goandroid_logo.png)
 
 go-android
