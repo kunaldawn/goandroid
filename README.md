@@ -1,6 +1,6 @@
 ![goandroid_logo](goandroid_logo.png)
 
-go-android
+goandroid
 ==========
 [![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid)
 
