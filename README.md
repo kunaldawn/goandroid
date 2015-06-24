@@ -2,7 +2,7 @@
 
 goandroid
 ==========
-[![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid)
+[![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid) [![Build Status](https://travis-ci.org/kunaldawn/goandroid.svg?branch=master)](https://travis-ci.org/kunaldawn/goandroid) [![Coverage Status](https://coveralls.io/repos/kunaldawn/goandroid/badge.svg)](https://coveralls.io/r/kunaldawn/goandroid)
 
 ### Introduction
 
