@@ -7,7 +7,7 @@ env:
     - ANDROID_SDK_VERSION="r24.3.3"
     - DEBUG_LOG=VV
     - ANDROID_TARGET=android-21
-    - ANDROID_ABI=armeabi-v71
+    - ANDROID_ABI=armeabi-v7a
 
 before_install:
     - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
@@ -15,10 +15,13 @@ before_install:
     - export ANDROID_HOME=`pwd`/android-sdk-linux
     - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
     - echo "sdk.dir=$ANDROID_HOME" > local.properties
-    - echo yes | android update sdk --filter platform-tools --no-ui --force > /dev/null
-    - echo yes | android update sdk --filter android-19 --no-ui --force > /dev/null
-    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - emulator -avd test -no-skin -no-audio -no-window &
+    - echo yes | android update sdk --filter platform-tools --no-ui --force
+    - echo yes | android update sdk --filter $ANDROID_TARGET --no-ui --force
+    - echo no | android create avd --force -n test1 -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - echo no | android create avd --force -n test2 -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - emulator -avd test1 -no-skin -no-audio -no-window &
+    - emulator -avd test2 -no-skin -no-audio -no-window &
+    - sleep 60
     - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - go get golang.org/x/tools/cmd/cover
