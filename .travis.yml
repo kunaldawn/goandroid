@@ -20,13 +20,12 @@ before_install:
     - echo no | android create avd --force -n test2 -t $ANDROID_TARGET --abi $ANDROID_ABI
     - emulator -avd test1 -no-skin -no-audio -no-window &
     - emulator -avd test2 -no-skin -no-audio -no-window &
-    - sleep 60
     - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - go get golang.org/x/tools/cmd/cover
 
 before_script:
-    - ./wait_for_emulator
+    - sleep 60
 
 script:
     - go test -coverprofile=goandroid.coverprofile
