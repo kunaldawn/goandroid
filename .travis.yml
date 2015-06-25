@@ -5,7 +5,7 @@ go:
 env:
   global:
     - ANDROID_SDK_VERSION="r24.3.3"
-    -DEBUG_LOG=VV
+    - DEBUG_LOG=VV
 
 before_install:
     - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
