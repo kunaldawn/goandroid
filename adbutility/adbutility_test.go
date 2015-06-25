@@ -5,32 +5,8 @@ import (
 	"time"
 )
 
-func TestGetAttachedDevices(t *testing.T) {
-	devs_initial, err := GetAttachedDevices(5)
-	if err != nil {
-		t.Error(err)
-	}
-
-	time.Sleep(time.Second * 5)
-
-	devs_final, err := GetAttachedDevices(5)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(devs_initial) != len(devs_final) {
-		t.Errorf("Number of devices do not match : [%v], [%v]", devs_initial, devs_final)
-	}
-
-	for _, dev := range devs_final {
-		if !stringInSlice(dev, devs_initial) {
-			t.Errorf("Devices do not match : [%v], [%v]", devs_initial, devs_final)
-		}
-	}
-}
-
 func TestWaitForDevice(t *testing.T) {
-	devs_initial, err := GetAttachedDevices(5)
+	devs_initial, err := GetAttachedDevices(120)
 	if err != nil {
 		t.Error(err)
 	}
@@ -58,6 +34,30 @@ func TestWaitForDevice(t *testing.T) {
 	err = WaitForDevices(10, "INVALID_SERIAL_XXYY")
 	if err == nil {
 		t.Errorf("Waiting should have failed because this device should not exist really")
+	}
+}
+
+func TestGetAttachedDevices(t *testing.T) {
+	devs_initial, err := GetAttachedDevices(5)
+	if err != nil {
+		t.Error(err)
+	}
+
+	time.Sleep(time.Second * 5)
+
+	devs_final, err := GetAttachedDevices(5)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(devs_initial) != len(devs_final) {
+		t.Errorf("Number of devices do not match : [%v], [%v]", devs_initial, devs_final)
+	}
+
+	for _, dev := range devs_final {
+		if !stringInSlice(dev, devs_initial) {
+			t.Errorf("Devices do not match : [%v], [%v]", devs_initial, devs_final)
+		}
 	}
 }
 

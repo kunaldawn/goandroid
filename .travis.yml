@@ -1,10 +1,26 @@
 language: go
 go:
     - tip
+env:
+  global:
+    - ANDROID_SDK_VERSION="r22.6.2"
+    -DEBUG_LOG=VV
 before_install:
+    - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
+    - tar -zxf android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
+    - export ANDROID_HOME=`pwd`/android-sdk-linux
+    - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+    - echo "sdk.dir=$ANDROID_HOME" > local.properties
+    - echo yes | android update sdk --filter platform-tools --no-ui --force > /dev/null
+    - echo yes | android update sdk --filter android-19 --no-ui --force > /dev/null
+    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - emulator -avd test -no-skin -no-audio -no-window &
     - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - go get golang.org/x/tools/cmd/cover
+
+before_script:
+    - ./wait_for_emulator
 script:
     - go test -coverprofile=goandroid.coverprofile
     - go test -coverprofile=adbutility.coverprofile ./adbutility
