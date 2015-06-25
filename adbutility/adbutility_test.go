@@ -3,16 +3,18 @@ package adbutility
 import (
 	"testing"
 	"time"
+        "os"
 )
 
 func TestWaitForDevice(t *testing.T) {
-	devs_initial, err := GetAttachedDevices(120)
+	os.Setenv("DEBUG_LOG", "V")
+	devs_initial, err := GetAttachedDevices(600)
 	if err != nil {
 		t.Error(err)
 	}
 
 	if len(devs_initial) == 0 {
-		err := WaitForDevices(5)
+		err := WaitForDevices(600)
 		if err == nil {
 			t.Errorf("No initial devices connected, Waiting should have failed")
 		}
