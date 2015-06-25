@@ -1,10 +1,12 @@
 language: go
 go:
     - tip
+
 env:
   global:
-    - ANDROID_SDK_VERSION="r22.6.2"
+    - ANDROID_SDK_VERSION="r24.3.3"
     -DEBUG_LOG=VV
+
 before_install:
     - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
     - tar -zxf android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
@@ -21,6 +23,7 @@ before_install:
 
 before_script:
     - ./wait_for_emulator
+
 script:
     - go test -coverprofile=goandroid.coverprofile
     - go test -coverprofile=adbutility.coverprofile ./adbutility
