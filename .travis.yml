@@ -6,6 +6,8 @@ env:
   global:
     - ANDROID_SDK_VERSION="r24.3.3"
     - DEBUG_LOG=VV
+    - ANDROID_TARGET=android-21
+    - ANDROID_ABI=armeabi-v71
 
 before_install:
     - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
