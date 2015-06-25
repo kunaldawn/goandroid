@@ -10,6 +10,9 @@ env:
     - ANDROID_ABI=armeabi-v7a
 
 before_install:
+    - sudo apt-get update -qq
+    - if [ `uname -m` = x86_64 ]; then sudo apt-get update; fi
+    - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
     - wget http://dl.google.com/android/android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
     - tar -zxf android-sdk_${ANDROID_SDK_VERSION}-linux.tgz
     - export ANDROID_HOME=`pwd`/android-sdk-linux
@@ -25,7 +28,9 @@ before_install:
     - go get golang.org/x/tools/cmd/cover
 
 before_script:
+    - adb devices
     - sleep 60
+    - adb devices
 
 script:
     - go test -coverprofile=goandroid.coverprofile
