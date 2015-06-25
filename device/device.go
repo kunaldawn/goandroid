@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kunaldawn/goandroid/adbutility"
+	"github.com/kunaldawn/goandroid/logging"
 	"strings"
 )
 
@@ -15,10 +16,12 @@ type Device struct {
 }
 
 func NewDevice(serial string, timeout int) Device {
+	logging.LogVV("NewDevice : serial [%s] : timeout [%d]", serial, timeout)
 	return Device{Serial: serial, Timeout: timeout}
 }
 
 func (dev Device) IsAvailable() (bool, error) {
+	logging.LogVV("IsAvailable : serial [%s]", dev.Serial)
 	devices, err := adbutility.GetAttachedDevices(dev.Timeout)
 	if err != nil {
 		return false, err
@@ -32,14 +35,17 @@ func (dev Device) IsAvailable() (bool, error) {
 }
 
 func (dev Device) Adb(command string, args ...string) (string, error) {
+	logging.LogVV("Adb : serial [%s] : command [%s] : args [%v]", dev.Serial, command, args)
 	return adbutility.Adb(dev.Timeout, append([]string{"-s", dev.Serial, command}, args...)...)
 }
 
 func (dev Device) Shell(command string, args ...string) (string, error) {
+	logging.LogVV("Shell : serial [%s] : command [%s] : args [%v]", dev.Serial, command, args)
 	return dev.Adb("shell", append([]string{command}, args...)...)
 }
 
 func (dev Device) GetProperty(key string) (string, error) {
+	logging.LogVV("GetProperty : serial [%s] : key [%s]", dev.Serial, key)
 	prop, err := dev.GetAllProperties()
 	if err != nil {
 		return "", err
@@ -52,6 +58,7 @@ func (dev Device) GetProperty(key string) (string, error) {
 }
 
 func (dev Device) GetAllProperties() (map[string]string, error) {
+	logging.LogVV("GetAllProperties : serial [%s]", dev.Serial)
 	prop_map := make(map[string]string)
 	prop, err := dev.Shell("getprop")
 	if err != nil {
@@ -70,17 +77,21 @@ func (dev Device) GetAllProperties() (map[string]string, error) {
 }
 
 func (dev Device) Pull(src string, dst string) (string, error) {
+	logging.LogVV("Pull : serial [%s] : src [%s] : dst [%s]", dev.Serial, src, dst)
 	return dev.Adb("pull", src, dst)
 }
 
 func (dev Device) Push(src string, dst string) (string, error) {
+	logging.LogVV("Push : serial [%s] : src [%s] : dst [%s]", dev.Serial, src, dst)
 	return dev.Adb("push", src, dst)
 }
 
 func (dev Device) WaitForAvailability() (string, error) {
+	logging.LogVV("WaitForAvailability : serial [%s]", dev.Serial)
 	return dev.Adb("wait-for-device")
 }
 
 func (dev Device) Root() (string, error) {
+	logging.LogVV("Root : serial [%s]", dev.Serial)
 	return dev.Adb("root")
 }

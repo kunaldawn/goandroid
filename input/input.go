@@ -4,12 +4,8 @@ package input
 
 import (
 	"github.com/kunaldawn/goandroid/device"
-	"strconv"
+	"github.com/kunaldawn/goandroid/logging"
 )
-
-type TouchScreen struct {
-	dev device.Device
-}
 
 type InputManager struct {
 	dev         device.Device
@@ -18,20 +14,13 @@ type InputManager struct {
 }
 
 func NewTouchScreen(dev device.Device) TouchScreen {
+	logging.LogVV("NewTouchScreen : device [%v]", dev)
 	return TouchScreen{dev: dev}
 }
 
 func NewInputManager(dev device.Device) InputManager {
+	logging.LogVV("NewInputManager : device [%v]", dev)
 	ts := NewTouchScreen(dev)
 	key := NewKey(dev)
 	return InputManager{dev: dev, TouchScreen: ts, Key: key}
 }
-
-func (ts TouchScreen) Tap(x int, y int) error {
-	_, err := ts.dev.Shell("input", "tap", strconv.Itoa(x), strconv.Itoa(y))
-	return err
-}
-
-// TODO : Determine what public api is required for Key
-
-// TODO : Determine what public api is required for touchscreen, such as drag, swipe longpress etc etc

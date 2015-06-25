@@ -11,5 +11,6 @@ script:
     - go test -coverprofile=device.coverprofile ./device
     - go test -coverprofile=input.coverprofile ./input
     - go test -coverprofile=view.coverprofile ./view
+    - go test -coverprofile=logging.coverprofile ./logging
     - $HOME/gopath/bin/gover
     - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service=travis-ci

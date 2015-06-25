@@ -6,6 +6,7 @@ import (
 	"github.com/kunaldawn/goandroid/adbutility"
 	"github.com/kunaldawn/goandroid/device"
 	"github.com/kunaldawn/goandroid/input"
+	"github.com/kunaldawn/goandroid/logging"
 	"github.com/kunaldawn/goandroid/view"
 )
 
@@ -21,6 +22,7 @@ type Android struct {
 }
 
 func NewAndroidDevice(serial string, timeout int) Android {
+	logging.Log("NewAndroidDevice : serial [%s] : timeout [%d]", serial, timeout)
 	dev := device.NewDevice(serial, timeout)
 	inp := input.NewInputManager(dev)
 	viw := view.NewDeviceView(dev)
@@ -28,6 +30,7 @@ func NewAndroidDevice(serial string, timeout int) Android {
 }
 
 func GetAttachedAndroidDevices(timeout int) ([]Android, error) {
+	logging.Log("GetAttachedAndroidDevices : timeout [%d]", timeout)
 	serials, err := adbutility.GetAttachedDevices(timeout)
 	if err != nil {
 		return []Android{}, err

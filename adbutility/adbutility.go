@@ -5,7 +5,7 @@ package adbutility
 import (
 	"errors"
 	"fmt"
-	"log"
+	"github.com/kunaldawn/goandroid/logging"
 	"os/exec"
 	"strings"
 	"time"
@@ -19,7 +19,7 @@ type output struct {
 type outChannel chan output
 
 func Adb(timeout int, args ...string) (string, error) {
-	log.Println(fmt.Sprintf("adb %v", args))
+	logging.LogVV("Adb : args [%v]", args)
 	cmd := exec.Command("adb", args...)
 	done := make(outChannel)
 	go func(done outChannel, cmd *exec.Cmd) {
@@ -38,12 +38,13 @@ func Adb(timeout int, args ...string) (string, error) {
 		if err != nil {
 			panic(err)
 		}
-		return "", errors.New(fmt.Sprintf("Timeout occured after %d sec", timeout))
+		return "", errors.New(fmt.Sprintf("Timeout occured after %d sec while executing adb %v", timeout, args))
 	}
 	return "", nil
 }
 
 func GetAttachedDevices(timeout int) ([]string, error) {
+	logging.LogVV("GetAttachedDevices : timeout [%d]", timeout)
 	devices := []string{}
 	adb_output, err := Adb(timeout, "devices")
 	if err != nil {
@@ -58,4 +59,50 @@ func GetAttachedDevices(timeout int) ([]string, error) {
 		}
 	}
 	return devices, nil
+}
+
+func WaitForDevices(timeout int, serials ...string) error {
+	logging.LogVV("WaitForDevices : timeout [%d] : serials [%v]", timeout, serials)
+	innter_to := 5
+	if timeout < innter_to {
+		innter_to = timeout
+	}
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		devs, err := GetAttachedDevices(innter_to)
+		if err != nil {
+			return err
+		}
+		if len(serials) == 0 {
+			if len(devs) > 0 {
+				return nil
+			}
+		} else {
+			found := 0
+			for _, dev := range devs {
+				if stringInSlice(dev, serials) {
+					found += 1
+				}
+			}
+			if found == len(serials) {
+				return nil
+			}
+		}
+		time.Sleep(time.Second)
+	}
+	return errors.New(fmt.Sprintf("Timeout occured after %d sec while waiting for devices", timeout))
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

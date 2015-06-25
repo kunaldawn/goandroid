@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kunaldawn/goandroid/device"
+	"github.com/kunaldawn/goandroid/logging"
 	"strings"
 )
 
@@ -15,10 +16,12 @@ type DeviceView struct {
 }
 
 func NewDeviceView(dev device.Device) DeviceView {
+	logging.LogVV("NewDeviceView : dev [%v]", dev)
 	return DeviceView{dev: dev}
 }
 
 func (devView DeviceView) GetViewes() (Views, error) {
+	logging.LogVV("GetViewes : serial [%s]", devView.dev.Serial)
 	hierarchy, err := devView.GetHierarchy()
 	if err != nil {
 		return Views{}, err
@@ -27,6 +30,7 @@ func (devView DeviceView) GetViewes() (Views, error) {
 }
 
 func (devView DeviceView) GetHierarchy() (Hierarchy, error) {
+	logging.LogVVV("GetHierarchy : serial [%s]", devView.dev.Serial)
 	out, err := devView.dev.Shell("uiautomator dump")
 	if err != nil {
 		return Hierarchy{}, err
