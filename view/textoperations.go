@@ -139,7 +139,7 @@ func (devView DeviceView) GetTextForMatchingResource(resource string, index int,
 }
 
 func (devView DeviceView) GetTextForType(typename string, index int, timeout int) (string, error) {
-	logging.Log("GetTextForType : typename [%s] : index [%d] : timeout [%d]", typename, index, timeout)
+	logging.Log("GetTextForType : type [%s] : index [%d] : timeout [%d]", typename, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -160,7 +160,7 @@ func (devView DeviceView) GetTextForType(typename string, index int, timeout int
 }
 
 func (devView DeviceView) GetTextForMatchingType(typename string, index int, timeout int) (string, error) {
-	logging.Log("GetTextForMatchingType : typename [%s] : index [%d] : timeout [%d]", typename, index, timeout)
+	logging.Log("GetTextForMatchingType : type [%s] : index [%d] : timeout [%d]", typename, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
