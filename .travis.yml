@@ -19,10 +19,8 @@ before_install:
     - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
     - echo "sdk.dir=$ANDROID_HOME" > local.properties
     - echo yes | android update sdk --filter $ANDROID_TARGET,sys-img-$ANDROID_ABI-$ANDROID_TARGET,tools,platform-tools --no-ui --force --all
-    - echo no | android create avd --force -n test1 -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - echo no | android create avd --force -n test2 -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - emulator -avd test1 -no-skin -no-audio -no-window &
-    - emulator -avd test2 -no-skin -no-audio -no-window &
+    - echo no | android create avd --force -n emu1 -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - emulator -avd emu1 -no-skin -no-audio -no-window &
     - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - go get golang.org/x/tools/cmd/cover
