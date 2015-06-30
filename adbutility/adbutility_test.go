@@ -1,9 +1,9 @@
 package adbutility
 
 import (
+	"os"
 	"testing"
 	"time"
-        "os"
 )
 
 func TestWaitForDevice(t *testing.T) {
