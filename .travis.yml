@@ -10,7 +10,6 @@ env:
     - ANDROID_ABI=armeabi-v7a
 
 before_install:
-    - emulator -avd emu1 -no-skin -no-audio -no-window &
     - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - go get golang.org/x/tools/cmd/cover
@@ -24,6 +23,7 @@ before_install:
     - echo "sdk.dir=$ANDROID_HOME" > local.properties
     - echo yes | android update sdk --filter $ANDROID_TARGET,sys-img-$ANDROID_ABI-$ANDROID_TARGET,tools,platform-tools --no-ui --force --all
     - echo no | android create avd --force -n emu1 -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - emulator -avd emu1 -no-skin -no-audio -no-window &
 
 before_script:
     - adb devices
