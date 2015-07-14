@@ -1,28 +1,36 @@
-// TODO : Documentation
-
+// Package device provides utility methods that provides interfaces to invoke adb
+// commands and adb shell commands on
 package device
 
 import (
 	"errors"
 	"fmt"
 	"github.com/kunaldawn/goandroid/adbutility"
-	"github.com/kunaldawn/goandroid/logging"
 	"strings"
+	"time"
+)
+
+const (
+	PROP_BOOT_STATUS = "sys.boot_completed" // Property that represents devices boot status
 )
 
 type Device struct {
-	Serial  string // Device serial number
-	Timeout int    // Timeout in seconds for all adb and shell operations
+	Serial      string                 // Device serial number
+	Timeout     int                    // Timeout in seconds for all adb and shell operations
+	AdbEndpoint adbutility.AdbEndpoint // Adb endpoint for this device
 }
 
-func NewDevice(serial string, timeout int) Device {
-	logging.LogVV("NewDevice : serial [%s] : timeout [%d]", serial, timeout)
-	return Device{Serial: serial, Timeout: timeout}
+// NewDevice creates a new Device based on given serial number, adb operation timeout and
+// connecting adb enpoint for this device.
+func NewDevice(serial string, timeout int, endPoint adbutility.AdbEndpoint) Device {
+	return Device{Serial: serial, Timeout: timeout, AdbEndpoint: endPoint}
 }
 
+// IsAvailable checkes availability of the device in the adb endpoint. It returns
+// boolean value indicating availibility status of the device and error in case of
+// something went wrong while doing adb operations.
 func (dev Device) IsAvailable() (bool, error) {
-	logging.LogVV("IsAvailable : serial [%s]", dev.Serial)
-	devices, err := adbutility.GetAttachedDevices(dev.Timeout)
+	devices, err := dev.AdbEndpoint.GetAttachedDevices(dev.Timeout)
 	if err != nil {
 		return false, err
 	}
@@ -34,18 +42,19 @@ func (dev Device) IsAvailable() (bool, error) {
 	return false, nil
 }
 
+// Adb allows to execute adb command on this device instance. It takes a adb command
+// and optional list of arguments. It returns outout of the adb command and error in case
+// of something went wrong. Please note that adb will timeout within default adb operation
+// timeout.
 func (dev Device) Adb(command string, args ...string) (string, error) {
-	logging.LogVV("Adb : serial [%s] : command [%s] : args [%v]", dev.Serial, command, args)
-	return adbutility.Adb(dev.Timeout, append([]string{"-s", dev.Serial, command}, args...)...)
+	return dev.AdbEndpoint.Adb(dev.Timeout, append([]string{"-s", dev.Serial, command}, args...)...)
 }
 
 func (dev Device) Shell(command string, args ...string) (string, error) {
-	logging.LogVV("Shell : serial [%s] : command [%s] : args [%v]", dev.Serial, command, args)
 	return dev.Adb("shell", append([]string{command}, args...)...)
 }
 
 func (dev Device) GetProperty(key string) (string, error) {
-	logging.LogVV("GetProperty : serial [%s] : key [%s]", dev.Serial, key)
 	prop, err := dev.GetAllProperties()
 	if err != nil {
 		return "", err
@@ -58,7 +67,6 @@ func (dev Device) GetProperty(key string) (string, error) {
 }
 
 func (dev Device) GetAllProperties() (map[string]string, error) {
-	logging.LogVV("GetAllProperties : serial [%s]", dev.Serial)
 	prop_map := make(map[string]string)
 	prop, err := dev.Shell("getprop")
 	if err != nil {
@@ -77,21 +85,56 @@ func (dev Device) GetAllProperties() (map[string]string, error) {
 }
 
 func (dev Device) Pull(src string, dst string) (string, error) {
-	logging.LogVV("Pull : serial [%s] : src [%s] : dst [%s]", dev.Serial, src, dst)
 	return dev.Adb("pull", src, dst)
 }
 
 func (dev Device) Push(src string, dst string) (string, error) {
-	logging.LogVV("Push : serial [%s] : src [%s] : dst [%s]", dev.Serial, src, dst)
 	return dev.Adb("push", src, dst)
 }
 
-func (dev Device) WaitForAvailability() (string, error) {
-	logging.LogVV("WaitForAvailability : serial [%s]", dev.Serial)
-	return dev.Adb("wait-for-device")
+func (dev Device) WaitForAvailability(timeout int) error {
+	_, err := dev.AdbEndpoint.Adb(timeout, "-s", dev.Serial, "wait-for-device")
+	return err
 }
 
-func (dev Device) Root() (string, error) {
-	logging.LogVV("Root : serial [%s]", dev.Serial)
-	return dev.Adb("root")
+func (dev Device) Root() error {
+	out, err := dev.Adb("root")
+	if err != nil {
+		return err
+	}
+	if !strings.Contains(out, "restarting adbd as root") && !strings.Contains(out, "adbd is already running as root") {
+		return errors.New("Unable to gain root access to device")
+	}
+	return dev.WaitForAvailability(dev.Timeout)
+}
+
+func (dev Device) Reboot(restartTimeout int, bootTimeout int) error {
+	_, err := dev.Adb("reboot")
+	if err != nil {
+		return err
+	}
+	err = dev.WaitForAvailability(restartTimeout)
+	if err != nil {
+		return err
+	}
+	return dev.WaitForBootToComplete(bootTimeout)
+}
+
+func (dev Device) WaitForBootToComplete(bootTimeout int) error {
+	startTime := time.Now()
+	for {
+		currentTime := time.Now()
+		delta := currentTime.Sub(startTime)
+		if delta.Seconds() >= float64(bootTimeout) {
+			break
+		}
+		val, err := dev.GetProperty(PROP_BOOT_STATUS)
+		if err != nil {
+			return err
+		}
+		if val == "1" {
+			return nil
+		}
+	}
+	return errors.New("Device not completed boot sequence in timeout")
 }

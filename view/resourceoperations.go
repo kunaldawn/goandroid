@@ -3,13 +3,10 @@ package view
 import (
 	"errors"
 	"fmt"
-	"github.com/kunaldawn/goandroid/input"
-	"github.com/kunaldawn/goandroid/logging"
 	"time"
 )
 
 func (devView DeviceView) IsResourcePresent(resource string, index int, timeout int) error {
-	logging.Log("IsResourcePresent : resource [%s] : index [%d] : timeout [%d]", resource, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -30,7 +27,6 @@ func (devView DeviceView) IsResourcePresent(resource string, index int, timeout 
 }
 
 func (devView DeviceView) IsMatchingResourcePresnt(resource string, index int, timeout int) error {
-	logging.Log("IsMatchingResourcePresnt : resource [%s] : index [%d] : timeout [%d]", resource, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -51,7 +47,6 @@ func (devView DeviceView) IsMatchingResourcePresnt(resource string, index int, t
 }
 
 func (devView DeviceView) ClickResource(resource string, index int, timeout int) error {
-	logging.Log("ClickResource : resource [%s] : index [%d] : timeout [%d]", resource, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -65,15 +60,13 @@ func (devView DeviceView) ClickResource(resource string, index int, timeout int)
 		}
 		vw, found := vws.GetByResource(resource, index)
 		if found {
-			im := input.NewInputManager(devView.dev)
-			return im.TouchScreen.Tap(vw.Center.X, vw.Center.Y)
+			return devView.im.TouchScreen.Tap(vw.Center.X, vw.Center.Y)
 		}
 	}
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for resource [%s]", timeout, resource))
 }
 
 func (devView DeviceView) ClickMatchingResource(resource string, index int, timeout int) error {
-	logging.Log("ClickMatchingResource : resource [%s] : index [%d] : timeout [%d]", resource, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -87,15 +80,57 @@ func (devView DeviceView) ClickMatchingResource(resource string, index int, time
 		}
 		vw, found := vws.GetByMatchingResource(resource, index)
 		if found {
-			im := input.NewInputManager(devView.dev)
-			return im.TouchScreen.Tap(vw.Center.X, vw.Center.Y)
+			return devView.im.TouchScreen.Tap(vw.Center.X, vw.Center.Y)
 		}
 	}
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching resource [%s]", timeout, resource))
 }
 
+func (devView DeviceView) ScrollDownToResource(resource string, index int, maxscroll int) error {
+	for i := 0; i < maxscroll; i++ {
+		err := devView.IsResourcePresent(resource, index, 1)
+		if err == nil {
+			return nil
+		}
+		devView.im.TouchScreen.SwipeUp(1)
+	}
+	return errors.New(fmt.Sprintf("Resource [$s] not found after scrolling down [%d] times ", resource, maxscroll))
+}
+
+func (devView DeviceView) ScrollUpToResource(resource string, index int, maxscroll int) error {
+	for i := 0; i < maxscroll; i++ {
+		err := devView.IsResourcePresent(resource, index, 1)
+		if err == nil {
+			return nil
+		}
+		devView.im.TouchScreen.SwipeDown(1)
+	}
+	return errors.New(fmt.Sprintf("Resource [$s] not found after scrolling up [%d] times ", resource, maxscroll))
+}
+
+func (devView DeviceView) ScrollDownToMatchingResource(resource string, index int, maxscroll int) error {
+	for i := 0; i < maxscroll; i++ {
+		err := devView.IsMatchingTextPresnt(resource, index, 1)
+		if err == nil {
+			return nil
+		}
+		devView.im.TouchScreen.SwipeUp(1)
+	}
+	return errors.New(fmt.Sprintf("Matching resource [$s] not found after scrolling down [%d] times ", resource, maxscroll))
+}
+
+func (devView DeviceView) ScrollUpToMatchingResource(resource string, index int, maxscroll int) error {
+	for i := 0; i < maxscroll; i++ {
+		err := devView.IsMatchingTextPresnt(resource, index, 1)
+		if err == nil {
+			return nil
+		}
+		devView.im.TouchScreen.SwipeDown(1)
+	}
+	return errors.New(fmt.Sprintf("Matching resource [$s] not found after scrolling up [%d] times ", resource, maxscroll))
+}
+
 func (devView DeviceView) GetResourceForText(text string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForText : text [%s] : index [%d] : timeout [%d]", text, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -116,7 +151,6 @@ func (devView DeviceView) GetResourceForText(text string, index int, timeout int
 }
 
 func (devView DeviceView) GetResourceForMatchingText(text string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForMatchingText : text [%s] : index [%d] : timeout [%d]", text, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -137,7 +171,6 @@ func (devView DeviceView) GetResourceForMatchingText(text string, index int, tim
 }
 
 func (devView DeviceView) GetResourceForType(typename string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForType : type [%s] : index [%d] : timeout [%d]", typename, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -158,7 +191,6 @@ func (devView DeviceView) GetResourceForType(typename string, index int, timeout
 }
 
 func (devView DeviceView) GetResourceForMatchingType(typename string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForMatchingType : type [%s] : index [%d] : timeout [%d]", typename, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -179,7 +211,6 @@ func (devView DeviceView) GetResourceForMatchingType(typename string, index int,
 }
 
 func (devView DeviceView) GetResourceForDescription(description string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForDescription : description [%s] : index [%d] : timeout [%d]", description, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()
@@ -200,7 +231,6 @@ func (devView DeviceView) GetResourceForDescription(description string, index in
 }
 
 func (devView DeviceView) GetResourceForMatchingDescription(description string, index int, timeout int) (string, error) {
-	logging.Log("GetResourceForMatchingDescription : description [%s] : index [%d] : timeout [%d]", description, index, timeout)
 	start := time.Now()
 	for {
 		current := time.Now()

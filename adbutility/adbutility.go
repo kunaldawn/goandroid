@@ -1,15 +1,40 @@
-// TODO : Documentation
-
 package adbutility
 
 import (
 	"errors"
 	"fmt"
-	"github.com/kunaldawn/goandroid/logging"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
 )
+
+type AdbEndpoint interface {
+	Adb(timeout int, args ...string) (string, error)
+	GetAttachedDevices(timeout int) ([]string, error)
+	WaitForSerials(timeout int, serials ...string) error
+	WaitForDevices(timeout int, count int) error
+}
+
+type localEndpoint struct {
+	adbPath string // Executable path of adb command
+}
+
+type remoteEndpoint struct {
+	url string // Host name of adb endpoint
+}
+
+func GetDefaultLocalEndpoint() AdbEndpoint {
+	return localEndpoint{adbPath: "adb"}
+}
+
+func GetLocalEndpoint(adbPath string) AdbEndpoint {
+	return GetDefaultLocalEndpoint()
+}
+
+func GetRemoteEndpoint(url string) AdbEndpoint {
+	return GetDefaultLocalEndpoint()
+}
 
 type output struct {
 	ret string // Output of a command execution
@@ -18,9 +43,9 @@ type output struct {
 
 type outChannel chan output
 
-func Adb(timeout int, args ...string) (string, error) {
-	logging.LogVV("Adb : args [%v]", args)
-	cmd := exec.Command("adb", args...)
+func (ep localEndpoint) Adb(timeout int, args ...string) (string, error) {
+	log.Println("adb :", args)
+	cmd := exec.Command(ep.adbPath, args...)
 	done := make(outChannel)
 	go func(done outChannel, cmd *exec.Cmd) {
 		// Run the command and get combined output for stdout and stderr
@@ -32,6 +57,9 @@ func Adb(timeout int, args ...string) (string, error) {
 	}(done, cmd)
 	select {
 	case out := <-done:
+		if strings.Contains(strings.TrimSpace(out.ret), "device not found") {
+			return "", errors.New("Device is disconnected")
+		}
 		return out.ret, out.err
 	case <-time.After(time.Duration(timeout) * time.Second):
 		err := cmd.Process.Kill()
@@ -43,10 +71,9 @@ func Adb(timeout int, args ...string) (string, error) {
 	return "", nil
 }
 
-func GetAttachedDevices(timeout int) ([]string, error) {
-	logging.LogVV("GetAttachedDevices : timeout [%d]", timeout)
+func (ep localEndpoint) GetAttachedDevices(timeout int) ([]string, error) {
 	devices := []string{}
-	adb_output, err := Adb(timeout, "devices")
+	adb_output, err := ep.Adb(timeout, "devices")
 	if err != nil {
 		return devices, err
 	}
@@ -61,8 +88,11 @@ func GetAttachedDevices(timeout int) ([]string, error) {
 	return devices, nil
 }
 
-func WaitForDevices(timeout int, serials ...string) error {
-	logging.LogVV("WaitForDevices : timeout [%d] : serials [%v]", timeout, serials)
+func (ep localEndpoint) WaitForSerials(timeout int, serials ...string) error {
+	if len(serials) == 0 {
+		return errors.New(fmt.Sprintf("No serials specified", timeout))
+	}
+
 	innter_to := 5
 	if timeout < innter_to {
 		innter_to = timeout
@@ -74,35 +104,51 @@ func WaitForDevices(timeout int, serials ...string) error {
 		if delta.Seconds() >= float64(timeout) {
 			break
 		}
-		devs, err := GetAttachedDevices(innter_to)
+		devs, err := ep.GetAttachedDevices(innter_to)
 		if err != nil {
 			return err
 		}
-		if len(serials) == 0 {
-			if len(devs) > 0 {
-				return nil
-			}
-		} else {
-			found := 0
-			for _, dev := range devs {
-				if stringInSlice(dev, serials) {
+		found := 0
+		for _, dev := range devs {
+			for _, item := range serials {
+				if dev == item {
 					found += 1
+					break
 				}
 			}
-			if found == len(serials) {
-				return nil
-			}
+		}
+		if found == len(serials) {
+			return nil
+		}
+		time.Sleep(time.Second)
+	}
+	return errors.New(fmt.Sprintf("Timeout occured after %d sec while waiting for serials", timeout))
+}
+
+func (ep localEndpoint) WaitForDevices(timeout int, count int) error {
+	if count <= 0 {
+		return errors.New(fmt.Sprintf("Can not wait for less than or eual to zero devices", timeout))
+	}
+
+	innter_to := 5
+	if timeout < innter_to {
+		innter_to = timeout
+	}
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		devs, err := ep.GetAttachedDevices(innter_to)
+		if err != nil {
+			return err
+		}
+		if count == len(devs) {
+			return nil
 		}
 		time.Sleep(time.Second)
 	}
 	return errors.New(fmt.Sprintf("Timeout occured after %d sec while waiting for devices", timeout))
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }

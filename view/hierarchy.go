@@ -6,7 +6,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/kunaldawn/goandroid/logging"
 	"strconv"
 	"strings"
 )
@@ -42,7 +41,6 @@ type Node struct {
 type Nodes []Node
 
 func (hierarchy Hierarchy) ConvertToViews() (Views, error) {
-	logging.LogVVV("ConvertToViews : hierarchy [%v]", hierarchy)
 	return hierarchy.NodeList.ConvertToViews()
 }
 

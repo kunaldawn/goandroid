@@ -16,12 +16,15 @@ func TestGetAttachedAndroidDevices(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	
+
 	if len(devs) == 0 {
 		t.Errorf("Expected atleast one device to be present. But found zero.")
 		t.FailNow()
 	}
-	
+
 	dev0 := devs[0]
-	dev0.Input.Key.PressPower(500)
+
+	for i := 0; i < 10; i++ {
+		dev0.Input.Key.PressPower(500)
+	}
 }
