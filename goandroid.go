@@ -23,8 +23,6 @@ type Android struct {
 	// TODO : Define following api
 	// Activity   interface{}
 	// Package    interface{}
-	// Telephoney interface{}
-	// Settings   interface{}
 }
 
 func GetDefaultAndroidManager(timeout int) AndroidManager {

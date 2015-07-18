@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/kunaldawn/goandroid/geometry"
 	"strconv"
 	"strings"
 )
@@ -135,11 +136,11 @@ func (node Node) ConvertToView() (View, error) {
 				return View{}, errors.New(fmt.Sprintf("Unable to determine bounds in [%v]", node))
 			}
 
-			vw.Bound = Rect{TopLeft: Point{top_x, top_y}, BottomRight: Point{bottom_x, bottom_y}}
+			vw.Bound = geometry.Rect{TopLeft: geometry.Point{top_x, top_y}, BottomRight: geometry.Point{bottom_x, bottom_y}}
 
 			center_x := top_x + (bottom_x-top_x)/2
 			center_y := top_y + (bottom_y-top_y)/2
-			vw.Center = Point{X: center_x, Y: center_y}
+			vw.Center = geometry.Point{X: center_x, Y: center_y}
 
 		} else {
 			return View{}, errors.New(fmt.Sprintf("Unable to determine bounds in [%v]", node))

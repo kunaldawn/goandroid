@@ -2,6 +2,7 @@
 package view
 
 import (
+	"github.com/kunaldawn/goandroid/geometry"
 	"strings"
 )
 
@@ -22,8 +23,8 @@ type View struct {
 	LongClickable bool
 	Password      bool
 	Selected      bool
-	Bound         Rect
-	Center        Point
+	Bound         geometry.Rect
+	Center        geometry.Point
 }
 
 type Views []View
