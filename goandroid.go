@@ -3,6 +3,7 @@
 package goandroid
 
 import (
+	"github.com/kunaldawn/goandroid/activity"
 	"github.com/kunaldawn/goandroid/adbutility"
 	"github.com/kunaldawn/goandroid/device"
 	"github.com/kunaldawn/goandroid/display"
@@ -16,13 +17,11 @@ type AndroidManager struct {
 }
 
 type Android struct {
-	Device  device.Device
-	Input   input.InputManager
-	View    view.DeviceView
-	Display display.Display
-	// TODO : Define following api
-	// Activity   interface{}
-	// Package    interface{}
+	Device   device.Device
+	Input    input.InputManager
+	View     view.DeviceView
+	Display  display.Display
+	Activity activity.Activity
 }
 
 func GetDefaultAndroidManager(timeout int) AndroidManager {
@@ -34,7 +33,8 @@ func (am AndroidManager) NewAndroidDevice(serial string) Android {
 	inp := input.NewInputManager(dev)
 	viw := view.NewDeviceView(dev)
 	disp := display.NewDisplay(dev)
-	return Android{dev, inp, viw, disp}
+	act := activity.NewActivity(dev)
+	return Android{dev, inp, viw, disp, act}
 }
 
 func (am AndroidManager) GetAttachedAndroidDevices(timeout int) ([]Android, error) {
