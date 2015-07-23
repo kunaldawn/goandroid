@@ -86,6 +86,46 @@ func (devView DeviceView) ClickMatchingResource(resource string, index int, time
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching resource [%s]", timeout, resource))
 }
 
+func (devView DeviceView) GetViewForResource(resource string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByResource(resource, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for resource [%s]", timeout, resource))
+}
+
+func (devView DeviceView) GetViewForMatchingResource(resource string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByMatchingResource(resource, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching resource [%s]", timeout, resource))
+}
+
 func (devView DeviceView) ScrollDownToResource(resource string, index int, maxscroll int) error {
 	for i := 0; i < maxscroll; i++ {
 		err := devView.IsResourcePresent(resource, index, 1)

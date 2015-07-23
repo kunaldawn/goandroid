@@ -88,6 +88,46 @@ func (devView DeviceView) ClickMatchingText(text string, index int, timeout int)
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching text [%s]", timeout, text))
 }
 
+func (devView DeviceView) GetViewForText(text string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByText(text, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for text [%s]", timeout, text))
+}
+
+func (devView DeviceView) GetViewForMatchingText(text string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByMatchingText(text, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching text [%s]", timeout, text))
+}
+
 func (devView DeviceView) ScrollDownToText(text string, index int, maxscroll int) error {
 	for i := 0; i < maxscroll; i++ {
 		err := devView.IsTextPresent(text, index, 1)

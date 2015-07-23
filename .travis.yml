@@ -32,10 +32,12 @@ before_script:
 
 script:
     - go test -coverprofile=goandroid.coverprofile
+    - go test -coverprofile=activity.coverprofile ./activity
     - go test -coverprofile=adbutility.coverprofile ./adbutility
     - go test -coverprofile=device.coverprofile ./device
+    - go test -coverprofile=display.coverprofile ./display
+    - go test -coverprofile=geometry.coverprofile ./geometry
     - go test -coverprofile=input.coverprofile ./input
     - go test -coverprofile=view.coverprofile ./view
-    - go test -coverprofile=logging.coverprofile ./logging
     - $HOME/gopath/bin/gover
     - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service=travis-ci

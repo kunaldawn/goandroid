@@ -86,6 +86,46 @@ func (devView DeviceView) ClickMatchingDescription(description string, index int
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching description [%s]", timeout, description))
 }
 
+func (devView DeviceView) GetViewForDescription(description string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByDescription(description, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for description [%s]", timeout, description))
+}
+
+func (devView DeviceView) GetViewForMatchingDescription(description string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByMatchingDescription(description, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching description [%s]", timeout, description))
+}
+
 func (devView DeviceView) ScrollDownToDescription(description string, index int, maxscroll int) error {
 	for i := 0; i < maxscroll; i++ {
 		err := devView.IsDescriptionPresent(description, index, 1)

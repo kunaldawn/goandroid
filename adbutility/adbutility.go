@@ -19,33 +19,22 @@ type AdbEndpoint interface {
 	WaitForDevices(timeout int, count int) error
 }
 
-// localEndpoint structure holds adb executable path for a local adb endpoint and
+// LocalEndpoint struct holds adb executable path for a local adb endpoint and
 // implements the interface AdbEndpoint.
-type localEndpoint struct {
-	adbPath string // Executable path of adb command
-}
-
-// remoteEndpoint structure holds remote host url on which it can connect and
-// execute adb commands there. it implements AdbEndpoint interface.
-type remoteEndpoint struct {
-	url string // Host name of adb endpoint
+type LocalEndpoint struct {
+	ADBPath string // Executable path of adb command
 }
 
 // GetDefaultEndpoint provides the default adb endpoint implementation, that is,
 // local adb where adb command can be located in system path.
 func GetDefaultLocalEndpoint() AdbEndpoint {
-	return localEndpoint{adbPath: "adb"}
+	return LocalEndpoint{ADBPath: "adb"}
 }
 
 // GetLocalEndpoint provides an endpoint on local machine with custome adb
 // executable location.
 func GetLocalEndpoint(adbPath string) AdbEndpoint {
-	return localEndpoint{adbPath: adbPath}
-}
-
-// TODO not implemented
-func GetRemoteEndpoint(url string) AdbEndpoint {
-	return GetDefaultLocalEndpoint()
+	return LocalEndpoint{ADBPath: adbPath}
 }
 
 // output is a structure that holds adb command's stdin + stdout and error if something
@@ -65,9 +54,9 @@ type outChannel chan output
 // panics in case of process can not be killed after timeout. It returns string
 // representing the adb command output including stdin and stdout and error is
 // returned if something went wrong.
-func (ep localEndpoint) Adb(timeout int, args ...string) (string, error) {
+func (ep LocalEndpoint) Adb(timeout int, args ...string) (string, error) {
 	log.Println("adb :", args)
-	cmd := exec.Command(ep.adbPath, args...)
+	cmd := exec.Command(ep.ADBPath, args...)
 	done := make(outChannel)
 	go func(done outChannel, cmd *exec.Cmd) {
 		// Run the command and get combined output for stdout and stderr
@@ -96,7 +85,7 @@ func (ep localEndpoint) Adb(timeout int, args ...string) (string, error) {
 // GetAttachedDevices method returns list of attached device serial number
 // to this local endpoint as a sclice of string. Error is also returned if
 // something went wront in adb side.
-func (ep localEndpoint) GetAttachedDevices(timeout int) ([]string, error) {
+func (ep LocalEndpoint) GetAttachedDevices(timeout int) ([]string, error) {
 	devices := []string{}
 	adb_output, err := ep.Adb(timeout, "devices")
 	if err != nil {
@@ -117,7 +106,7 @@ func (ep localEndpoint) GetAttachedDevices(timeout int) ([]string, error) {
 // local endpoint. It returns error in case of all specified serial numbers can not
 // be detected by this endpoint. Error is also returned if something went wront in
 // adb side.
-func (ep localEndpoint) WaitForSerials(timeout int, serials ...string) error {
+func (ep LocalEndpoint) WaitForSerials(timeout int, serials ...string) error {
 	if len(serials) == 0 {
 		return errors.New(fmt.Sprintf("No serials specified", timeout))
 	}
@@ -157,7 +146,7 @@ func (ep localEndpoint) WaitForSerials(timeout int, serials ...string) error {
 // WaitForDevices method waits for specified number of devices to be available to this
 // local endpoint. If specific number of devices can not be located in timeout, it returns
 // error. Error is also returned if something went wront in adb side.
-func (ep localEndpoint) WaitForDevices(timeout int, count int) error {
+func (ep LocalEndpoint) WaitForDevices(timeout int, count int) error {
 	if count <= 0 {
 		return errors.New(fmt.Sprintf("Can not wait for less than or eual to zero devices", timeout))
 	}

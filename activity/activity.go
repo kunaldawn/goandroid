@@ -8,13 +8,14 @@ import (
 	"time"
 )
 
+// Activity struct represents activity subsystem for associated android device.
 type Activity struct {
 	dev device.Device // Device instance
 }
 
 // NewActivity method gives an initialized instance of activity manager.
-// It takes device.Device is a parameter and returns an instance of
-// activity.Activity struct.
+// It takes device.Device is a parameter and returns an instance of activity.Activity
+// struct.
 func NewActivity(dev device.Device) Activity {
 	return Activity{dev: dev}
 }

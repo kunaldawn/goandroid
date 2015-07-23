@@ -8,43 +8,36 @@ import (
 	"strings"
 )
 
-const (
-	EV_ABS                  = 3   // ABS Event
-	EV_SYN                  = 0   // Sync Event
-	EV_KEY                  = 1   // Key event
-	BTN_TOUCH               = 330 // Touch event
-	BTN_TOOL_FINGER         = 325 // Finger event
-	DOWN                    = 1   // Touch down event
-	UP                      = 0   // Touch up event
-	ABS_MT_TRACKING_ID      = 57  // ID of the touch (important for multi-touch reports)
-	ABS_MT_TOUCH_MAJOR      = 48  // Touch size in pixels
-	ABS_MT_POSITION_X       = 53  // X coordinate of the touch
-	ABS_X                   = 0   // X coordinate of touch in emulator
-	ABS_MT_POSITION_Y       = 54  // Y coordinate of the touch
-	ABS_Y                   = 1   // Y coordinate of touch in emulator
-	ABS_MT_PRESSURE         = 58  // Pressure of the touch
-	SYN_MT_REPORT           = 2   // End of separate touch data
-	SYN_REPORT              = 0   // End of report
-	DEFAULT_TOUCH_ID        = 0   // Default touch point id
-	DEFAULT_PRESSURE        = 50  // Touch pressure default value
-	DEFAULT_FINGER_TIP_SIZE = 5   // Default touch finger tip size
-)
-
+// TouchScreen struct represensts touch input susbystem for associated device.
 type TouchScreen struct {
-	dev  device.Device
-	disp display.Display
+	dev  device.Device   // Associated device
+	disp display.Display // Associated device display
 }
 
+// NewTouchScreen method returns a new TouchScreen and associates it with
+// given device.
+func NewTouchScreen(dev device.Device) TouchScreen {
+	disp := display.NewDisplay(dev)
+	return TouchScreen{dev: dev, disp: disp}
+}
+
+// Tap method performs a touch operation on specified (x,y) coordinate. It
+// returns error on adb operation failure.
 func (ts TouchScreen) Tap(x int, y int) error {
 	_, err := ts.dev.Shell("input", "tap", strconv.Itoa(x), strconv.Itoa(y))
 	return err
 }
 
+// Swipe method performs touch swipe operation from given (x1, y1) coordinate
+// to (x2, y2) coordinate with specified delay. It returns error on adb operation
+// failure.
 func (ts TouchScreen) Swipe(x1 int, y1 int, x2 int, y2 int, delay int) error {
 	_, err := ts.dev.Shell("input", "touchscreen", "swipe", strconv.Itoa(x1), strconv.Itoa(y1), strconv.Itoa(x2), strconv.Itoa(y2), strconv.Itoa(delay))
 	return err
 }
 
+// SwipeDown method performs touch swipe down (top --> bottom) operation for
+// a number of times defined by given count parameter. It returns error on adb operation failure.
 func (ts TouchScreen) SwipeDown(count int) error {
 	w, h, err := ts.disp.GetDisplaySize()
 	if err != nil {
@@ -63,6 +56,9 @@ func (ts TouchScreen) SwipeDown(count int) error {
 	return nil
 }
 
+// SwipeUp method performs touch swipe up (bottom --> top) operation for
+// a number of times defined by given count parameter. It returns error on
+// adb operation failure.
 func (ts TouchScreen) SwipeUp(count int) error {
 	w, h, err := ts.disp.GetDisplaySize()
 	if err != nil {
@@ -81,6 +77,9 @@ func (ts TouchScreen) SwipeUp(count int) error {
 	return nil
 }
 
+// SwipeLeft method performs touch swipe left (right --> left) operation for
+// a number of times defined by given count parameter. It returns error on
+// adb operation failure.
 func (ts TouchScreen) SwipeLeft(count int) error {
 	w, h, err := ts.disp.GetDisplaySize()
 	if err != nil {
@@ -99,6 +98,9 @@ func (ts TouchScreen) SwipeLeft(count int) error {
 	return nil
 }
 
+// SwipeRight method performs touch swipe right (right --> left) operation for
+// a number of times defined by given count parameter. It returns error on
+// adb operation failure.
 func (ts TouchScreen) SwipeRight(count int) error {
 	w, h, err := ts.disp.GetDisplaySize()
 	if err != nil {
@@ -117,11 +119,18 @@ func (ts TouchScreen) SwipeRight(count int) error {
 	return nil
 }
 
+// RawSendEvent sends raw touch input event on given touch device, it takes
+// event type, event code and event value as parameter and returns error on
+// adb operation failure. make sure you are using correct device path for
+// touch device, and can be obtailed easily by GetTouchInputDevice method.
 func (ts TouchScreen) RawSendEvent(dev string, eventType int, event int, value int) error {
 	_, err := ts.dev.Shell("sendevent", dev, strconv.Itoa(eventType), strconv.Itoa(event), strconv.Itoa(value))
 	return err
 }
 
+// GetTouchInputDevice method is used to determine correct touch input device
+// path on associated android device. It returns error on adb operation failure or
+// if device path can not be determined for any reason.
 func (ts TouchScreen) GetTouchInputDevice() (string, error) {
 	tag1 := "KEY (0001):"
 	tag2 := "ABS (0003):"

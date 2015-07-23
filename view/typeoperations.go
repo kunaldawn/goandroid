@@ -86,6 +86,46 @@ func (devView DeviceView) ClickMatchingType(typename string, index int, timeout 
 	return errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching type [%s]", timeout, typename))
 }
 
+func (devView DeviceView) GetViewForType(typename string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByType(typename, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for type [%s]", timeout, typename))
+}
+
+func (devView DeviceView) GetViewForMatchingType(typename string, index int, timeout int) (View, error) {
+	start := time.Now()
+	for {
+		current := time.Now()
+		delta := current.Sub(start)
+		if delta.Seconds() >= float64(timeout) {
+			break
+		}
+		vws, err := devView.GetViewes()
+		if err != nil {
+			return View{}, err
+		}
+		vw, found := vws.GetByMatchingType(typename, index)
+		if found {
+			return vw, nil
+		}
+	}
+	return View{}, errors.New(fmt.Sprintf("Timeout occured after %d seconds while searching for matching type [%s]", timeout, typename))
+}
+
 func (devView DeviceView) ScrollDownToType(typename string, index int, maxscroll int) error {
 	for i := 0; i < maxscroll; i++ {
 		err := devView.IsTypePresent(typename, index, 1)
