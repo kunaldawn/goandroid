@@ -9,27 +9,188 @@ Introduction
 **"goandroid" is an Android automation library purely written in GO.**
 
 **Project Status :** Under Development, not yet ready for v1.0 release.
-**TODO List for v1.0 :**
-- [ ] Implement remaning generic fearures that are marked for v1.0.
-- [ ] Complete Documentation.
-- [ ] Fix public API and make release for v1.0, after that only new API will be added.
-- [ ] Write test code for emulator so that each test can be performed over Travis CI.
-- [ ] Create examples.
-- [ ] Provide documentation in README file.
 
-Whether you are an android developer developing applications for your project and want to do some automation tasks on your application to reduce some manual human work over multiple devices/emulators, or an enthusiastic developer who want to do some cool automation taks on your android device, this library allows you to write automation code and do cool stuffs on your android device.
+Whether you are an android developer and want to do some automation tasks on your android device to reduce some manual human work, or an enthusiastic developer who want to do some automation taks on your android device, this library allows you to write automation code and do cool stuffs on your android device.
 
-This project was inspired by [xiaocong/uiautomator](https://github.com/xiaocong/uiautomator) which is a python wrapper for [Android UI Automator](https://developer.android.com/tools/testing-support-library/index.html#UIAutomator) java library.
+#### TODO's
+- Complete all Package Documentation's
+- Implement all features for v1.0
+- Write test code for all packages such that it can be tested on Travis CI over emulator
 
-Please note that this is not an "Android UI Automation Test Framework", though it can be used as one, if you want for your purpose.
+#### FAQ's
+- **Is it a wrapper arround Android [UI Automator](https://developer.android.com/tools/testing-support-library/index.html#UIAutomator) library?**
 
-The main implementation difference between [xiaocong/uiautomator](https://github.com/xiaocong/uiautomator) and **goandroid** library is following:
+    No, goandroid does not uses UI Automator for its implementation. It does not uses any java backend or JSON RPC service to communicate UI Automator.
 
-|                               | goandroid     | uiautomator   |
-| ----------------------------- | ------------- | ------------- |
-| Uses any Java code ?          | **No**        | Yes           |
-| Any APK installed on device ? | **No**        | Yes           |
-| How does it work ?            | This library is purely based on top of **adb** tool, all features provied by this library uses only adb command to achive that. No android instrumentation or android ui automation java library is used as backend. This may limit features provided by this library, but  | This library installs an APK on device which starts a http server and listens for RPC calls. This http server backend is based on [android-uiautomator-server](https://github.com/xiaocong/android-uiautomator-server) and uses android ui automation framework for its internal implementation. Each call on python code invokes some method in java code via RPC using this http server running on the device. |
+- **Is it Android testing framework?**  
 
+    No, goandroid is not an android trsting framework. Its an automation framework, but can be used for android UI automation and testing perpuses also.
 
-#### Any contributions / pull requests are always welcome.
+- **Does it installs anything on my android device?**
+
+    No, goandroid does not installs any APK or other tools in your android device to provide any features.
+
+- **Can you explain how does it work?**
+
+    This library is purely based on ADB (Android Debugger Bridge) and adb tool. It uses adb commands to perform all operations on device. You can write automation code using this library and check logs for what adb command has been executed for that automation logic.
+
+- **I want this feature X, can you include X in goandroid?**
+
+    If the feature you are requesting can be implemented only by using adb commands, yes I will add the feature for you. Just make a pull request or start a new issue describing the adb equivalent implementation for the feature.
+
+- **What are the dependencies of goandroid?**
+
+    The only dependency of goandroid library is "adb" executable tool.
+
+Usage & Example
+----------------
+
+### Install adb
+First of all make sure you have "adb" tool in your system path.
+
+For Ubuntu 14.04 or later use following commands to install adb:
+```bash
+sudo apt-get update
+sudo apt-get install android-tools-adb
+```
+
+For other distributions, download Android SDK and "adb" tool can be located inside"platform-tools" direcory. Now add this to your system path using following comands:
+```bash
+cd <root folder of sdk>
+export PATH=$PATH:$PWD/platform-tools
+```
+
+### Initialize Android device instance
+First import "github.com/kunaldawn/goandroid" in your source, and you are ready to write some cool automation code. To interact with an android device, you need to create an android device instance first. Following example shows how to create a new android device instance and enable "Show CPU Usage" settings using automation. Please locate the documentation for package [goandroid](https://godoc.org/github.com/kunaldawn/goandroid) for more information.
+
+**Example:**
+
+**[Youtube Screen Cast](https://www.youtube.com/watch?v=vuq2Cq82xJ4)**
+
+```go
+package main
+
+import (
+	"github.com/kunaldawn/goandroid"
+)
+
+func main() {
+	// Creat a new android manager with 60 seconds adb time out and take adb
+	// executable path from system path.
+	android_manager := goandroid.GetNewAndroidManager(60, "adb")
+
+	// Create an android device instance with following serial
+	android := android_manager.GetNewAndroidDevice("emulator-5554")
+
+	// Start settings activity
+	android.Activity.StartActivity("com.android.settings")
+	// Wait for settings activity to get focused and displayed on screen
+	// with 10 seconds timeout
+	android.Activity.WaitForActivityToFocus("com.android.settings", 10)
+
+	// Scroll down to "About phone"
+	android.View.ScrollDownToText("About phone", 0, 10)
+	// Now click "About phone" settings item
+	android.View.ClickText("About phone", 0, 5)
+
+	// Now scroll down to "Build number"
+	android.View.ScrollDownToText("Build number", 0, 10)
+
+	// Now for faster click operation, we are going to get the view for "Build number" text
+	view, _ := android.View.GetViewForText("Build number", 0, 5)
+
+	// Now we will click the text 10 times
+	for i := 0; i < 10; i++ {
+		android.Input.TouchScreen.Tap(view.Center.X, view.Center.Y)
+	}
+
+	// Now go back to main settings page
+	android.Input.Key.PressBack(1)
+	// Click developer options
+	android.View.ClickText("Developer options", 0, 10)
+	
+	// Now scroll down to "Show CPU Usage" and enable it
+	android.View.ScrollDownToMatchingText("show cpu", 0, 10)
+	android.View.ClickMatchingText("show cpu", 0, 10)
+}
+```
+
+**Translated adb commands by goandroid for above code:**
+```
+adb : [-s emulator-5554 root]
+adb : [-s emulator-5554 wait-for-device]
+adb : [-s emulator-5554 shell am start com.android.settings]
+adb : [-s emulator-5554 shell dumpsys activity | grep mFocusedActivity:]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell input tap 369 1643]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input tap 188 1684]
+adb : [-s emulator-5554 shell input keyevent 4]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell input tap 433 1426]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell wm size]
+adb : [-s emulator-5554 shell input touchscreen swipe 540 1440 540 480 1000]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell uiautomator dump]
+adb : [-s emulator-5554 shell cat /storage/sdcard/window_dump.xml]
+adb : [-s emulator-5554 shell input tap 229 1677]
+```
