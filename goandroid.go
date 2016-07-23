@@ -11,7 +11,7 @@ import (
 
 // AndroidManager struct defines a android device manager with an associated
 // adb endpoint and adb operation timeout. All devices returned by this android
-// manader will be having this adb operation timeout.
+// manager will be having this adb operation timeout.
 type AndroidManager struct {
 	Endpoint adbutility.AdbEndpoint // Associated adb endpoint
 	Timeout  int                    // Default adb operation timeout in seconds
@@ -52,7 +52,7 @@ func (am AndroidManager) GetNewAndroidDevice(serial string) Android {
 }
 
 // GetAttachedAndroidDevices method returns list of attached android devices
-// to the system. It returns error if any error occured wile performing adb operation. 
+// to the system. It returns error if any error occurred wile performing adb operation.
 func (am AndroidManager) GetAttachedAndroidDevices() ([]Android, error) {
 	serials, err := am.Endpoint.GetAttachedDevices(am.Timeout)
 	if err != nil {
