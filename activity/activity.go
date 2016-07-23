@@ -30,10 +30,6 @@ func NewActivity(dev device.Device) Activity {
 // TODO Check if activity can not be launched or not found or other command
 // related outputs.
 func (am Activity) StartActivity(canonicalClass string, options ...string) error {
-	err := am.dev.Root()
-	if err != nil {
-		return err
-	}
 	if len(options) > 0 {
 		cmd := []string{}
 		cmd = append(cmd, "start")
