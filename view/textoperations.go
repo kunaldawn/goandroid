@@ -136,7 +136,7 @@ func (devView DeviceView) ScrollDownToText(text string, index int, maxscroll int
 		}
 		devView.im.TouchScreen.SwipeUp(1)
 	}
-	return errors.New(fmt.Sprintf("Text [$s] not found after scrolling down [%d] times ", text, maxscroll))
+	return errors.New(fmt.Sprintf("Text [%s] not found after scrolling down [%d] times ", text, maxscroll))
 }
 
 func (devView DeviceView) ScrollUpToText(text string, index int, maxscroll int) error {
@@ -147,7 +147,7 @@ func (devView DeviceView) ScrollUpToText(text string, index int, maxscroll int) 
 		}
 		devView.im.TouchScreen.SwipeDown(1)
 	}
-	return errors.New(fmt.Sprintf("Text [$s] not found after scrolling up [%d] times ", text, maxscroll))
+	return errors.New(fmt.Sprintf("Text [%s] not found after scrolling up [%d] times ", text, maxscroll))
 }
 
 func (devView DeviceView) ScrollDownToMatchingText(text string, index int, maxscroll int) error {
@@ -158,7 +158,7 @@ func (devView DeviceView) ScrollDownToMatchingText(text string, index int, maxsc
 		}
 		devView.im.TouchScreen.SwipeUp(1)
 	}
-	return errors.New(fmt.Sprintf("Matching text [$s] not found after scrolling down [%d] times ", text, maxscroll))
+	return errors.New(fmt.Sprintf("Matching text [%s] not found after scrolling down [%d] times ", text, maxscroll))
 }
 
 func (devView DeviceView) ScrollUpToMatchingText(text string, index int, maxscroll int) error {
@@ -169,7 +169,7 @@ func (devView DeviceView) ScrollUpToMatchingText(text string, index int, maxscro
 		}
 		devView.im.TouchScreen.SwipeDown(1)
 	}
-	return errors.New(fmt.Sprintf("Matching text [$s] not found after scrolling up [%d] times ", text, maxscroll))
+	return errors.New(fmt.Sprintf("Matching text [%s] not found after scrolling up [%d] times ", text, maxscroll))
 }
 
 func (devView DeviceView) GetTextForResource(resource string, index int, timeout int) (string, error) {
