@@ -12,6 +12,7 @@ import (
 // AdbEndpoint struct defines an adb communication endpoint for an android device.
 type AdbEndpoint struct {
 	ADBPath string // Executable path of adb command
+	Debug   bool   // Logs some events if enabled
 }
 
 // GetNewAdbEndpoint method returns a new ADBEndpoint instance with specified adb
@@ -39,7 +40,9 @@ type AdbEndpointOutputChannel chan AdbEndpointOutput
 // representing the adb command output including stdout and stderr and error is
 // returned if something went wrong.
 func (ep AdbEndpoint) Adb(timeout int, args ...string) (string, error) {
-	log.Println("adb :", args)
+	if ep.Debug {
+		log.Println("adb :", args)
+	}
 	cmd := exec.Command(ep.ADBPath, args...)
 	done := make(AdbEndpointOutputChannel)
 	go func(done AdbEndpointOutputChannel, cmd *exec.Cmd) {
