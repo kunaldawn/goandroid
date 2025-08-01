@@ -1,8 +1,6 @@
 ![goandroid_logo](goandroid_logo.png)
 
 goandroid
-=========
-[![Project Status](http://stillmaintained.com/kunaldawn/goandroid.png)](https://stillmaintained.com/kunaldawn/goandroid) [![Build Status](http://img.shields.io/travis/kunaldawn/goandroid.svg?style=flat-square)](https://travis-ci.org/kunaldawn/goandroid) [![Coverage Status](http://img.shields.io/coveralls/kunaldawn/goandroid.svg?style=flat-square)](https://coveralls.io/r/kunaldawn/goandroid) [![Issues](http://img.shields.io/github/issues/kunaldawn/goandroid.svg?style=flat-square)](https://github.com/kunaldawn/goandroid/issues) [![Documentation](http://img.shields.io/badge/go-Documentation-blue.svg?style=flat-square)](https://godoc.org/github.com/kunaldawn/goandroid) [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/kunaldawn/goandroid/blob/master/LICENSE)
 
 Introduction
 ------------
@@ -41,6 +39,106 @@ Whether you are an android developer and want to do some automation tasks on you
 - **What are the dependencies of goandroid?**
 
     The only dependency of goandroid library is "adb" executable tool.
+
+MCP Integration & Claude Code
+------------------------------
+
+**goandroid** now includes comprehensive **Model Context Protocol (MCP)** support, enabling seamless integration with Claude Code and other MCP-compatible AI development tools.
+
+### What is MCP Integration?
+
+The MCP server exposes all goandroid functionality through **134 standardized tools** across **27 handler categories**, allowing AI assistants like Claude Code to directly control Android devices through natural language commands.
+
+### Integration with Claude Code
+
+Claude Code can now perform Android automation tasks by communicating with the goandroid MCP server:
+
+```bash
+# Start MCP server in stdio mode (for Claude Code)
+cd cmd/mcp-server && go run . --adb="adb" --timeout=60
+
+# Or start in HTTP mode
+cd cmd/mcp-server && go run . --adb="adb" --timeout=60 --http=":8080"
+```
+
+#### Registering HTTP MCP Server with Claude Code CLI
+
+Once your HTTP MCP server is running, register it with Claude Code CLI:
+
+```bash
+# Register the HTTP MCP server (replace with your server URL and port)
+claude mcp add --transport http goandroid-server http://localhost:8080
+
+# List registered MCP servers to verify
+claude mcp list
+
+# Get details about the registered server
+claude mcp get goandroid-server
+```
+
+**Configuration Options:**
+- Use `--scope local` for project-specific configuration (default)
+- Use `--scope user` to make the server available across all projects
+- Add authentication headers if needed: `--header "Authorization: Bearer your-token"`
+
+**Server Management:**
+```bash
+# Remove a registered server
+claude mcp remove goandroid-server
+
+# Update server configuration
+claude mcp remove goandroid-server
+claude mcp add --transport http goandroid-server http://localhost:8080
+```
+
+### Available MCP Tools (134 Total)
+
+#### Device Management Tools
+- **Device Operations**: Check availability, get properties, execute ADB commands
+- **File Management**: Push/pull files, manage device storage
+- **Device Information**: Battery status, memory info, system specs, root detection
+- **Device Control**: Reboot, wait for boot completion, root access
+
+#### Input Automation Tools  
+- **Basic Input**: Tap, swipe, enter text
+- **Advanced Touch**: Multi-touch gestures, raw touch events
+- **Key Events**: Hardware keys, navigation, volume controls
+- **Gesture Drawing**: Complex gesture patterns, emulator-specific gestures
+
+#### UI Interaction Tools
+- **Element Finding**: Locate UI elements by text, resource ID, description, type
+- **Presence Checking**: Verify element existence and visibility
+- **Click Operations**: Click elements by various selectors
+- **Scrolling**: Scroll to find elements, directional scrolling
+- **State Management**: Check element states, get element properties
+- **Cross-Reference**: Get properties of related elements
+
+#### Activity & Display Tools
+- **Activity Management**: Start apps, check focused activity, wait for focus
+- **Display Control**: Get/set screen dimensions, display properties
+- **Geometry Utilities**: Calculate distances, rectangle operations, coordinate math
+
+### Example: Using Claude Code with goandroid MCP
+
+Once the MCP server is running, Claude Code can execute commands like:
+
+```
+"Tap on the Settings button"
+"Scroll down to find Developer Options and enable it"
+"Check if the device is rooted"
+"Get the current battery level"
+"Take a screenshot and analyze the UI"
+```
+
+The MCP server automatically translates these requests into appropriate ADB commands and device interactions.
+
+### Benefits of MCP Integration
+
+- **Natural Language Control**: Control Android devices through conversational AI
+- **Comprehensive Coverage**: All goandroid APIs exposed as MCP tools
+- **Dual Transport**: Support for both stdio and HTTP protocols
+- **Error Handling**: Robust error reporting and validation
+- **Development Acceleration**: Rapid prototyping of Android automation workflows
 
 Usage & Example
 ----------------
